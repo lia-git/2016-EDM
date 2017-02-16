@@ -99,8 +99,8 @@ class StudentModel(object):
         # tensors of shape (doc_num, n_input)
         x = tf.split(0, num_steps, x)
         #inputs = [tf.squeeze(input_, [1]) for input_ in tf.split(1, num_steps, inputs)]
-        outputs, state = tf.nn.rnn(hidden1, x, dtype=tf.float32)
-
+        #outputs, state = tf.nn.rnn(hidden1, x, dtype=tf.float32)
+        outputs, state = tf.nn.rnn(cell, x, dtype=tf.float32)
         output = tf.reshape(tf.concat(1, outputs), [-1, final_hidden_size])
         # calculate the logits from last hidden layer to output layer
         sigmoid_w = tf.get_variable("sigmoid_w", [final_hidden_size, num_skills])
