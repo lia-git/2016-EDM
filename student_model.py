@@ -100,7 +100,7 @@ class StudentModel(object):
         x = tf.split(x,num_steps,0)
         #inputs = [tf.squeeze(input_, [1]) for input_ in tf.split(1, num_steps, inputs)]
         #outputs, state = tf.nn.rnn(hidden1, x, dtype=tf.float32)
-        outputs, state = tf.nn.static_rnn(cell, x, dtype=tf.float32)
+        outputs, state = tf.nn.dynamic_rnn(cell, x, dtype=tf.float32)
         output = tf.reshape(tf.concat(outputs,1), [-1, final_hidden_size])
         # calculate the logits from last hidden layer to output layer
         sigmoid_w = tf.get_variable("sigmoid_w", [final_hidden_size, num_skills])
@@ -298,15 +298,15 @@ def main(unused_args):
                               for g, v in grads_and_vars if g is not None]
             grads_and_vars = [(add_gradient_noise(g), v) for g, v in grads_and_vars]
             train_op = optimizer.apply_gradients(grads_and_vars, name="train_op", global_step=global_step)
-            session.run(tf.initialize_all_variables())
+            session.run(tf.global_variables_initializer())
             # log hyperparameters to results file
-            with open(result_file_path, "a+") as f:
-                print("Writing hyperparameters into file")
-                f.write("Hidden layer size: %d \n" % (FLAGS.hidden_size))
-                f.write("Dropout rate: %.3f \n" % (FLAGS.keep_prob))
-                f.write("Batch size: %d \n" % (FLAGS.batch_size))
-                f.write("Max grad norm: %d \n" % (FLAGS.max_grad_norm))
-            saver = tf.train.Saver(tf.all_variables())
+            # with open(result_file_path, "a+") as f:
+            #     print("Writing hyperparameters into file")
+            #     f.write("Hidden layer size: %d \n" % (FLAGS.hidden_size))
+            #     f.write("Dropout rate: %.3f \n" % (FLAGS.keep_prob))
+            #     f.write("Batch size: %d \n" % (FLAGS.batch_size))
+            #     f.write("Max grad norm: %d \n" % (FLAGS.max_grad_norm))
+            saver = tf.train.Saver(tf.global_variables())
 
             for i in range(config.max_max_epoch):
                 rmse, auc, r2 = run_epoch(session, m, train_students, train_op, verbose=True)
